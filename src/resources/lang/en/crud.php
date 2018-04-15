@@ -65,6 +65,9 @@ return [
         'delete_confirmation_not_deleted_title'       => 'Not deleted',
         'delete_confirmation_not_deleted_message'     => 'Nothing happened. Your item is safe.',
 
+        'ajax_error_title' => 'Error',
+        'ajax_error_text'  => 'Error loading page. Please refresh the page.',
+
         // DataTables translation
         'emptyTable'     => 'No data available in table',
         'info'           => 'Showing _START_ to _END_ of _TOTAL_ entries',
@@ -86,6 +89,14 @@ return [
         'aria' => [
             'sortAscending'  => ': activate to sort column ascending',
             'sortDescending' => ': activate to sort column descending',
+        ],
+        'export' => [
+            'copy'              => 'Copy',
+            'excel'             => 'Excel',
+            'csv'               => 'CSV',
+            'pdf'               => 'PDF',
+            'print'             => 'Print',
+            'column_visibility' => 'Column visibility',
         ],
 
     // global crud - errors
@@ -115,6 +126,9 @@ return [
 
     // Fields
         'browse_uploads' => 'Browse uploads',
+        'select_all' => 'Select All',
+        'select_files' => 'Select files',
+        'select_file' => 'Select file',
         'clear' => 'Clear',
         'page_link' => 'Page link',
         'page_link_placeholder' => 'http://example.com/your-desired-page',
