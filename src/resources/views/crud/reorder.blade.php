@@ -63,7 +63,7 @@ function tree_element($entry, $key, $all_entries, $crud)
 
 ?>
 
-<div class="row mt-4">
+<div class="{{ $crud->getReorderRowClass() }}">
     <div class="{{ $crud->getReorderContentClass() }}">
         <div class="card p-4">
             <p>{{ trans('backpack::crud.reorder_text') }}</p>
