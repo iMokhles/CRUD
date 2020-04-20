@@ -22,7 +22,7 @@
 
 @section('content')
 <!-- Default box -->
-  <div class="row">
+  <div class="{{ $crud->getListRowClass() }}">
 
     <!-- THE ACTUAL CONTENT -->
     <div class="{{ $crud->getListContentClass() }}">
