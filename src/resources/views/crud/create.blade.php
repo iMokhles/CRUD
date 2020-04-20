@@ -26,7 +26,7 @@
 
 @section('content')
 
-<div class="row">
+<div class="{{ $crud->getCreateRowClass() }}">
 	<div class="{{ $crud->getCreateContentClass() }}">
 		<!-- Default box -->
 
