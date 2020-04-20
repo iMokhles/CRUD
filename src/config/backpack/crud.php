@@ -20,6 +20,10 @@ return [
             // Define the size/looks of the content div for all CRUDs
             // To override per view use $this->crud->setListContentClass('class-string')
             'contentClass' => 'col-md-12',
+            
+            // Define the size/looks of the content div for all CRUDs
+            // To override per view use $this->crud->setListRowClass('class-string')
+            'rowClass' => 'row',
 
             // enable the datatables-responsive plugin, which hides columns if they don't fit?
             // if not, a horizontal scrollbar will be shown instead
@@ -61,6 +65,10 @@ return [
             // Define the size/looks of the content div for all CRUDs
             // To override per view use $this->crud->setCreateContentClass('class-string')
             'contentClass' => 'col-md-8 bold-labels',
+            
+            // Define the size/looks of the content div for all CRUDs
+            // To override per view use $this->crud->setCreateRowClass('class-string')
+            'rowClass' => 'row',
 
             // When using tabbed forms (create & update), what kind of tabs would you like?
             'tabsType' => 'horizontal', //options: horizontal, vertical
@@ -94,6 +102,14 @@ return [
             // Define the size/looks of the content div for all CRUDs
             // To override per view use $this->crud->setEditContentClass('class-string')
             'contentClass'   => 'col-md-8 bold-labels',
+            
+            // Define the size/looks of the content div for all CRUDs
+            // To override per view use $this->crud->setEditRowClass('class-string')
+            'rowClass'   => 'row',
+            
+            // Define the size/looks of the content div for all CRUDs
+            // To override per view use $this->crud->setEditRowClass('class-string')
+            'rowClass'   => 'row',
 
             // When using tabbed forms (create & update), what kind of tabs would you like?
             'tabsType' => 'horizontal', //options: horizontal, vertical
@@ -127,6 +143,10 @@ return [
             // Define the size/looks of the content div for all CRUDs
             // To override per Controller use $this->crud->setShowContentClass('class-string')
             'contentClass' => 'col-md-8',
+            
+            // Define the size/looks of the content div for all CRUDs
+            // To override per Controller use $this->crud->setShowRowClass('class-string')
+            'rowClass' => 'row',
         ],
 
         /*
@@ -136,6 +156,10 @@ return [
             // Define the size/looks of the content div for all CRUDs
             // To override per Controller use $this->crud->setReorderContentClass('class-string')
             'contentClass'   => 'col-md-8 col-md-offset-2',
+            
+            // Define the size/looks of the content div for all CRUDs
+            // To override per Controller use $this->crud->setReorderRowClass('class-string')
+            'rowClass'   => 'row mt-4',
         ],
 
         /*
@@ -145,6 +169,10 @@ return [
             // Define the size/looks of the content div for all CRUDs
             // To override per view use $this->crud->setRevisionsTimelineContentClass('class-string')
             'timelineContentClass' => 'col-md-12',
+            
+            // Define the size/looks of the content div for all CRUDs
+            // To override per view use $this->crud->setRevisionsTimelineRowClass('class-string')
+            'timelineRowClass' => 'row m-t-20',
         ],
 
     ],
