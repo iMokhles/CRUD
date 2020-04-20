@@ -25,7 +25,7 @@
 @endsection
 
 @section('content')
-<div class="row">
+<div class="{{ $crud->getShowRowClass() }}">
 	<div class="{{ $crud->getShowContentClass() }}">
 
 	<!-- Default box -->
