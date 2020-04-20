@@ -25,7 +25,7 @@
 @endsection
 
 @section('content')
-<div class="row m-t-20">
+<div class="{{ $crud->getRevisionsTimelineRowClass() }}">
   <div class="{{ $crud->getRevisionsTimelineContentClass() }}">
     <!-- Default box -->
 
