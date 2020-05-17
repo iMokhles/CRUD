@@ -289,7 +289,7 @@ function tree_element($entry, $key, $all_entries, $crud)
         var token = $('meta[name="csrf_token"]').attr('content');
 
         if (token) {
-            return xhr.setRequestHeader('X-XSRF-TOKEN', token);
+            return xhr.setRequestHeader('X-CSRF-TOKEN', token);
         }
     });
 
