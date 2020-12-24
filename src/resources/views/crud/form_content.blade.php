@@ -5,11 +5,11 @@
     @include('crud::inc.show_tabbed_fields')
     <input type="hidden" name="current_tab" value="{{ Str::slug($crud->getTabs()[0]) }}" />
 @else
-  <div class="card">
-    <div class="card-body row">
-      @include('crud::inc.show_fields', ['fields' => $crud->fields()])
+    <div class="card">
+        <div class="card-body row">
+            @include('crud::inc.show_fields', ['fields' => $crud->fields()])
+        </div>
     </div>
-  </div>
 @endif
 
 
@@ -33,130 +33,176 @@
     @stack('crud_fields_scripts')
 
     <script>
-    function initializeFieldsWithJavascript(container) {
-      var selector;
-      if (container instanceof jQuery) {
-        selector = container;
-      } else {
-        selector = $(container);
-      }
-      selector.find("[data-init-function]").not("[data-initialized=true]").each(function () {
-        var element = $(this);
-        var functionName = element.data('init-function');
+        function initializeFieldsWithJavascript(container) {
+            var selector;
+            if (container instanceof jQuery) {
+                selector = container;
+            } else {
+                selector = $(container);
+            }
+            selector.find("[data-init-function]").not("[data-initialized=true]").each(function () {
+                var element = $(this);
+                var functionName = element.data('init-function');
 
-        if (typeof window[functionName] === "function") {
-          window[functionName](element);
+                if (typeof window[functionName] === "function") {
+                    window[functionName](element);
 
-          // mark the element as initialized, so that its function is never called again
-          element.attr('data-initialized', 'true');
+                    // mark the element as initialized, so that its function is never called again
+                    element.attr('data-initialized', 'true');
+                }
+            });
         }
-      });
-    }
 
-    jQuery('document').ready(function($){
+        function initializeFieldsVisibility() {
+            // get all fields has visibility
 
-      // trigger the javascript for all fields that have their js defined in a separate method
-      initializeFieldsWithJavascript('form');
+                @php
+                    $visibiltiesFields = [];
+                    foreach ($fields as $field => $options) {
+                        if (array_key_exists('visibility', $options)) {
+                            $visibiltiesFields[] = $options;
+                        }
+                    }
+                @endphp
 
+            const JSVisibilitiesFields = {!! json_encode($visibiltiesFields) !!}
 
-      // Save button has multiple actions: save and exit, save and edit, save and new
-      var saveActions = $('#saveActions'),
-      crudForm        = saveActions.parents('form'),
-      saveActionField = $('[name="save_action"]');
+                JSVisibilitiesFields.forEach(function (item) {
+                    let fieldName = item['name'];
+                    let conditionValue = item['visibility']['value'];
+                    let parentName = item['visibility']['field_name'];
+                    let parentValue = $('[name=' + parentName + ']').val();
 
-      saveActions.on('click', '.dropdown-menu a', function(){
-          var saveAction = $(this).data('value');
-          saveActionField.val( saveAction );
-          crudForm.submit();
-      });
+                    console.log("PARENT VALUE: "+parentValue)
+                    console.log("CHILD VALUE: "+conditionValue)
+                    if (parentValue == conditionValue) {
+                        $('#' + fieldName + '').toggle(500);
+                        $('[name='+fieldName+']').removeAttr("disabled");
+                    } else {
+                        $('#' + fieldName + '').toggle(500);
+                        $('[name='+fieldName+']').attr("disabled", "disabled");
+                    }
 
-      // Ctrl+S and Cmd+S trigger Save button click
-      $(document).keydown(function(e) {
-          if ((e.which == '115' || e.which == '83' ) && (e.ctrlKey || e.metaKey))
-          {
-              e.preventDefault();
-              $("button[type=submit]").trigger('click');
-              return false;
-          }
-          return true;
-      });
+                    $('[name='+parentName+']').change(function(){
+                        if ($(this).val() == conditionValue) {
+                            $('#' + fieldName + '').toggle(500);
+                            $('[name='+fieldName+']').removeAttr("disabled");
+                        } else {
+                            $('#' + fieldName + '').toggle(500);
+                            $('[name='+fieldName+']').attr("disabled", "disabled");
+                        }
+                    });
+                });
 
-      // prevent duplicate entries on double-clicking the submit form
-      crudForm.submit(function (event) {
-        $("button[type=submit]").prop('disabled', true);
-      });
-
-      // Place the focus on the first element in the form
-      @if( $crud->getAutoFocusOnFirstField() )
-        @php
-          $focusField = Arr::first($fields, function($field) {
-              return isset($field['auto_focus']) && $field['auto_focus'] == true;
-          });
-        @endphp
-
-        @if ($focusField)
-          @php
-            $focusFieldName = isset($focusField['value']) && is_iterable($focusField['value']) ? $focusField['name'] . '[]' : $focusField['name'];
-          @endphp
-          window.focusField = $('[name="{{ $focusFieldName }}"]').eq(0),
-        @else
-          var focusField = $('form').find('input, textarea, select').not('[type="hidden"]').eq(0),
-        @endif
-
-        fieldOffset = focusField.offset().top,
-        scrollTolerance = $(window).height() / 2;
-
-        focusField.trigger('focus');
-
-        if( fieldOffset > scrollTolerance ){
-            $('html, body').animate({scrollTop: (fieldOffset - 30)});
+            console.log("Fields: "+JSON.stringify(JSVisibilitiesFields, null, true));
         }
-      @endif
 
-      // Add inline errors to the DOM
-      @if ($crud->inlineErrorsEnabled() && $errors->any())
+        jQuery('document').ready(function($){
 
-        window.errors = {!! json_encode($errors->messages()) !!};
-        // console.error(window.errors);
+            // trigger the javascript for all fields that have their js defined in a separate method
+            initializeFieldsWithJavascript('form');
 
-        $.each(errors, function(property, messages){
+            // toggle fields visibilities
+            initializeFieldsVisibility();
 
-            var normalizedProperty = property.split('.').map(function(item, index){
+            // Save button has multiple actions: save and exit, save and edit, save and new
+            var saveActions = $('#saveActions'),
+                crudForm        = saveActions.parents('form'),
+                saveActionField = $('[name="save_action"]');
+
+            saveActions.on('click', '.dropdown-menu a', function(){
+                var saveAction = $(this).data('value');
+                saveActionField.val( saveAction );
+                crudForm.submit();
+            });
+
+            // Ctrl+S and Cmd+S trigger Save button click
+            $(document).keydown(function(e) {
+                if ((e.which == '115' || e.which == '83' ) && (e.ctrlKey || e.metaKey))
+                {
+                    e.preventDefault();
+                    $("button[type=submit]").trigger('click');
+                    return false;
+                }
+                return true;
+            });
+
+            // prevent duplicate entries on double-clicking the submit form
+            crudForm.submit(function (event) {
+                $("button[type=submit]").prop('disabled', true);
+            });
+
+            // Place the focus on the first element in the form
+            @if( $crud->getAutoFocusOnFirstField() )
+                @php
+                    $focusField = Arr::first($fields, function($field) {
+                        return isset($field['auto_focus']) && $field['auto_focus'] == true;
+                    });
+                @endphp
+
+                @if ($focusField)
+                @php
+                    $focusFieldName = isset($focusField['value']) && is_iterable($focusField['value']) ? $focusField['name'] . '[]' : $focusField['name'];
+                @endphp
+                window.focusField = $('[name="{{ $focusFieldName }}"]').eq(0),
+                @else
+            var focusField = $('form').find('input, textarea, select').not('[type="hidden"]').eq(0),
+                @endif
+
+                fieldOffset = focusField.offset().top,
+                scrollTolerance = $(window).height() / 2;
+
+            focusField.trigger('focus');
+
+            if( fieldOffset > scrollTolerance ){
+                $('html, body').animate({scrollTop: (fieldOffset - 30)});
+            }
+            @endif
+
+            // Add inline errors to the DOM
+            @if ($crud->inlineErrorsEnabled() && $errors->any())
+
+                window.errors = {!! json_encode($errors->messages()) !!};
+            // console.error(window.errors);
+
+            $.each(errors, function(property, messages){
+
+                var normalizedProperty = property.split('.').map(function(item, index){
                     return index === 0 ? item : '['+item+']';
                 }).join('');
 
-            var field = $('[name="' + normalizedProperty + '[]"]').length ?
-                        $('[name="' + normalizedProperty + '[]"]') :
-                        $('[name="' + normalizedProperty + '"]'),
-                        container = field.parents('.form-group');
+                var field = $('[name="' + normalizedProperty + '[]"]').length ?
+                    $('[name="' + normalizedProperty + '[]"]') :
+                    $('[name="' + normalizedProperty + '"]'),
+                    container = field.parents('.form-group');
 
-            container.addClass('text-danger');
-            container.children('input, textarea, select').addClass('is-invalid');
+                container.addClass('text-danger');
+                container.children('input, textarea, select').addClass('is-invalid');
 
-            $.each(messages, function(key, msg){
-                // highlight the input that errored
-                var row = $('<div class="invalid-feedback d-block">' + msg + '</div>');
-                row.appendTo(container);
+                $.each(messages, function(key, msg){
+                    // highlight the input that errored
+                    var row = $('<div class="invalid-feedback d-block">' + msg + '</div>');
+                    row.appendTo(container);
 
-                // highlight its parent tab
-                @if ($crud->tabsEnabled())
-                var tab_id = $(container).closest('[role="tabpanel"]').attr('id');
-                $("#form_tabs [aria-controls="+tab_id+"]").addClass('text-danger');
-                @endif
+                    // highlight its parent tab
+                        @if ($crud->tabsEnabled())
+                    var tab_id = $(container).closest('[role="tabpanel"]').attr('id');
+                    $("#form_tabs [aria-controls="+tab_id+"]").addClass('text-danger');
+                    @endif
+                });
             });
+
+            @endif
+
+            $("a[data-toggle='tab']").click(function(){
+                currentTabName = $(this).attr('tab_name');
+                $("input[name='current_tab']").val(currentTabName);
+            });
+
+            if (window.location.hash) {
+                $("input[name='current_tab']").val(window.location.hash.substr(1));
+            }
+
         });
-
-      @endif
-
-      $("a[data-toggle='tab']").click(function(){
-          currentTabName = $(this).attr('tab_name');
-          $("input[name='current_tab']").val(currentTabName);
-      });
-
-      if (window.location.hash) {
-          $("input[name='current_tab']").val(window.location.hash.substr(1));
-      }
-
-      });
     </script>
 @endsection
