@@ -83,37 +83,36 @@
                     let conditionValue = item['visibility']['value'];
                     let parentName = item['visibility']['field_name'];
 
+                    let fieldGroup = $('#' + fieldName + '');
+                    let fieldElement = $('[name='+fieldName+']');
                     let parent = null;
+
                     if (isInsideRepeatable == true) {
                         parent = $('[data-repeatable-input-name=' + parentName + ']');
                     } else {
                         parent = $('[name=' + parentName + ']');
                     }
 
+
                     let parentValue = parent.val();
-                    console.log("PARENT VALUE: "+parentValue)
-                    console.log("CHILD VALUE: "+conditionValue)
                     if (parentValue == conditionValue) {
-                        $('#' + fieldName + '').show();
-                        $('[name='+fieldName+']').removeAttr("disabled");
+                        fieldGroup.show();
+                        fieldElement.removeAttr("disabled");
                     } else {
-                        $('#' + fieldName + '').hide();
-                        $('[name='+fieldName+']').attr("disabled", "disabled");
+                        fieldGroup.hide();
+                        fieldElement.attr("disabled", "disabled");
                     }
 
                     parent.change(function(){
-                        console.log("Value: "+$(this).val())
                         if ($(this).val() == conditionValue) {
-                            $('#' + fieldName + '').toggle(500);
-                            $('[name='+fieldName+']').removeAttr("disabled");
+                            fieldGroup.toggle(500);
+                            fieldElement.removeAttr("disabled");
                         } else {
-                            $('#' + fieldName + '').toggle(500);
-                            $('[name='+fieldName+']').attr("disabled", "disabled");
+                            fieldGroup.toggle(500);
+                            fieldElement.attr("disabled", "disabled");
                         }
                     });
                 });
-
-            console.log("Fields: "+JSON.stringify(JSVisibilitiesFields, null, true));
         }
 
         jQuery('document').ready(function($){
