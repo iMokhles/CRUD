@@ -80,6 +80,7 @@
                 JSVisibilitiesFields.forEach(function (item) {
                     let isInsideRepeatable = item['repeatable'];
                     let fieldName = item['name'];
+                    let shouldDisable = item['visibility']['add_disabled'];
                     let conditionValue = item['visibility']['value'];
                     let parentName = item['visibility']['field_name'];
 
@@ -97,19 +98,27 @@
                     let parentValue = parent.val();
                     if (parentValue == conditionValue) {
                         fieldGroup.show();
-                        fieldElement.removeAttr("disabled");
+                        if (fieldElement.prop('disabled')) {
+                            fieldElement.removeAttr("disabled");
+                        }
                     } else {
                         fieldGroup.hide();
-                        fieldElement.attr("disabled", "disabled");
+                        if (shouldDisable) {
+                            fieldElement.attr("disabled", "disabled");
+                        }
                     }
 
                     parent.change(function(){
                         if ($(this).val() == conditionValue) {
                             fieldGroup.toggle(500);
-                            fieldElement.removeAttr("disabled");
+                            if (fieldElement.prop('disabled')) {
+                                fieldElement.removeAttr("disabled");
+                            }
                         } else {
                             fieldGroup.toggle(500);
-                            fieldElement.attr("disabled", "disabled");
+                            if (shouldDisable) {
+                                fieldElement.attr("disabled", "disabled");
+                            }
                         }
                     });
                 });
