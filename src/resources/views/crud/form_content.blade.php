@@ -59,7 +59,17 @@
                 @php
                     $visibiltiesFields = [];
                     foreach ($fields as $field => $options) {
+                        if (array_key_exists('fields', $options)) {
+                             foreach ($options['fields'] as $repField => $repOptions) {
+                                 if (array_key_exists('visibility', $repOptions)) {
+                                     $repOptions['repeatable'] = true;
+                                     $visibiltiesFields[] = $repOptions;
+                                 }
+                             }
+
+                        }
                         if (array_key_exists('visibility', $options)) {
+                            $options['repeatable'] = false;
                             $visibiltiesFields[] = $options;
                         }
                     }
@@ -68,22 +78,31 @@
             const JSVisibilitiesFields = {!! json_encode($visibiltiesFields) !!}
 
                 JSVisibilitiesFields.forEach(function (item) {
+                    let isInsideRepeatable = item['repeatable'];
                     let fieldName = item['name'];
                     let conditionValue = item['visibility']['value'];
                     let parentName = item['visibility']['field_name'];
-                    let parentValue = $('[name=' + parentName + ']').val();
 
+                    let parent = null;
+                    if (isInsideRepeatable == true) {
+                        parent = $('[data-repeatable-input-name=' + parentName + ']');
+                    } else {
+                        parent = $('[name=' + parentName + ']');
+                    }
+
+                    let parentValue = parent.val();
                     console.log("PARENT VALUE: "+parentValue)
                     console.log("CHILD VALUE: "+conditionValue)
                     if (parentValue == conditionValue) {
-                        $('#' + fieldName + '').toggle(500);
+                        $('#' + fieldName + '').show();
                         $('[name='+fieldName+']').removeAttr("disabled");
                     } else {
-                        $('#' + fieldName + '').toggle(500);
+                        $('#' + fieldName + '').hide();
                         $('[name='+fieldName+']').attr("disabled", "disabled");
                     }
 
-                    $('[name='+parentName+']').change(function(){
+                    parent.change(function(){
+                        console.log("Value: "+$(this).val())
                         if ($(this).val() == conditionValue) {
                             $('#' + fieldName + '').toggle(500);
                             $('[name='+fieldName+']').removeAttr("disabled");
