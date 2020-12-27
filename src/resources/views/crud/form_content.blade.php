@@ -85,17 +85,27 @@
                     let parentName = item['visibility']['field_name'];
 
                     let fieldGroup = $('#' + fieldName + '');
+                    if (fieldGroup === undefined) {
+                        fieldGroup = ('#"' + fieldName + '\\[\\]"');
+                    }
                     let fieldElement = $('[name='+fieldName+']');
-                    let parent = null;
-
-                    if (isInsideRepeatable == true) {
-                        parent = $('[data-repeatable-input-name=' + parentName + ']');
-                    } else {
-                        parent = $('[name=' + parentName + ']');
+                    if (fieldElement === undefined) {
+                        fieldElement = $('[name="'+fieldName+'\\[\\]"]');
                     }
 
+                    let parent = $('[name="'+parentName+'\\[\\]"]');
+                    if (parent === undefined) {
+                        parent = $('[name="'+parentName+'"]');
+                    }
+                    if (isInsideRepeatable == true) {
+                        parent = $('[data-repeatable-input-name=' + parentName + ']');
+                        if (parent === undefined) {
+                            parent = $('[data-repeatable-input-name="'+parentName+'\\[\\]"]');
+                        }
+                    }
 
                     let parentValue = parent.val();
+
                     if (parentValue == conditionValue) {
                         fieldGroup.show();
                         if (fieldElement.prop('disabled')) {
@@ -107,17 +117,25 @@
                             fieldElement.attr("disabled", "disabled");
                         }
                     }
-
                     parent.change(function(){
-                        if ($(this).val() == conditionValue) {
-                            fieldGroup.toggle(500);
+                        let conditionBool = false;
+                        if (parent.attr('name').includes("[]")) {
+                            conditionBool = ($(this).val().indexOf(conditionValue) > -1);
+                        } else {
+                            conditionBool = ($(this).val() == conditionValue);
+                        }
+
+                        if (conditionBool) {
+                            fieldGroup.slideDown(500);
                             if (fieldElement.prop('disabled')) {
                                 fieldElement.removeAttr("disabled");
                             }
                         } else {
-                            fieldGroup.toggle(500);
-                            if (shouldDisable) {
-                                fieldElement.attr("disabled", "disabled");
+                            if (fieldGroup.is(':visible')) {
+                                fieldGroup.slideUp(500);
+                                if (shouldDisable) {
+                                    fieldElement.attr("disabled", "disabled");
+                                }
                             }
                         }
                     });
