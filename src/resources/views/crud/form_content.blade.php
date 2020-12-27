@@ -106,15 +106,27 @@
 
                     let parentValue = parent.val();
 
-                    if (parentValue == conditionValue) {
-                        fieldGroup.show();
-                        if (fieldElement.prop('disabled')) {
-                            fieldElement.removeAttr("disabled");
-                        }
+                    let conditionBool = false;
+                    if (parent.attr('name').includes("[]")) {
+                        conditionBool = (parentValue.indexOf(conditionValue) > -1);
                     } else {
-                        fieldGroup.hide();
-                        if (shouldDisable) {
-                            fieldElement.attr("disabled", "disabled");
+                        conditionBool = (parentValue == conditionValue);
+                    }
+
+                    if (conditionBool) {
+                        if (fieldGroup.is(':hidden')) {
+                            fieldGroup.slideDown(500);
+                            if (fieldElement.prop('disabled')) {
+                                fieldElement.removeAttr("disabled");
+                            }
+                        }
+
+                    } else {
+                        if (fieldGroup.is(':visible')) {
+                            fieldGroup.slideUp(500);
+                            if (shouldDisable) {
+                                fieldElement.attr("disabled", "disabled");
+                            }
                         }
                     }
                     parent.change(function(){
@@ -126,9 +138,11 @@
                         }
 
                         if (conditionBool) {
-                            fieldGroup.slideDown(500);
-                            if (fieldElement.prop('disabled')) {
-                                fieldElement.removeAttr("disabled");
+                            if (fieldGroup.is(':hidden')) {
+                                fieldGroup.slideDown(500);
+                                if (fieldElement.prop('disabled')) {
+                                    fieldElement.removeAttr("disabled");
+                                }
                             }
                         } else {
                             if (fieldGroup.is(':visible')) {
