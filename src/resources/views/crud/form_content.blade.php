@@ -75,66 +75,44 @@
                     }
                 @endphp
 
+                @if(count($visibiltiesFields))
             const JSVisibilitiesFields = {!! json_encode($visibiltiesFields) !!}
-
                 JSVisibilitiesFields.forEach(function (item) {
-                    let isInsideRepeatable = item['repeatable'];
-                    let fieldName = item['name'];
-                    let shouldDisable = item['visibility']['add_disabled'];
-                    let conditionValue = item['visibility']['value'];
-                    let parentName = item['visibility']['field_name'];
+                    var isInsideRepeatable = item['repeatable'];
+                    var fieldName = item['name'];
+                    var shouldDisable = item['visibility']['add_disabled'];
+                    var conditionValue = item['visibility']['value'];
+                    var parentName = item['visibility']['field_name'];
 
-                    let fieldGroup = $('#' + fieldName + '');
-                    if (fieldGroup === undefined) {
+                    var fieldGroup = $('#' + fieldName + '');
+                    if (!fieldGroup.length) {
                         fieldGroup = ('#"' + fieldName + '\\[\\]"');
                     }
-                    let fieldElement = $('[name='+fieldName+']');
-                    if (fieldElement === undefined) {
+                    var fieldElement = $('[name='+fieldName+']');
+                    if (!fieldElement.length) {
                         fieldElement = $('[name="'+fieldName+'\\[\\]"]');
                     }
 
-                    let parent = $('[name="'+parentName+'\\[\\]"]');
-                    if (parent === undefined) {
-                        parent = $('[name="'+parentName+'"]');
+                    var parentField = $('[name="'+parentName+'"]');
+                    if (!parentField.length) {
+                        parentField = $('[name="'+parentName+'\\[\\]"]');
                     }
                     if (isInsideRepeatable == true) {
-                        parent = $('[data-repeatable-input-name=' + parentName + ']');
-                        if (parent === undefined) {
-                            parent = $('[data-repeatable-input-name="'+parentName+'\\[\\]"]');
+                        parentField = $('[data-repeatable-input-name=' + parentName + ']');
+                        if (!parentField.length) {
+                            parentField = $('[data-repeatable-input-name="'+parentName+'\\[\\]"]');
                         }
                     }
 
-                    let parentValue = parent.val();
+                    var parentValue = parentField.val();
 
-                    let conditionBool = false;
-                    if (parent.attr('name').includes("[]")) {
-                        conditionBool = (parentValue.indexOf(conditionValue) > -1);
-                    } else {
-                        conditionBool = (parentValue == conditionValue);
-                    }
+                    var conditionBool = false;
 
-                    if (conditionBool) {
-                        if (fieldGroup.is(':hidden')) {
-                            fieldGroup.slideDown(500);
-                            if (fieldElement.prop('disabled')) {
-                                fieldElement.removeAttr("disabled");
-                            }
-                        }
-
-                    } else {
-                        if (fieldGroup.is(':visible')) {
-                            fieldGroup.slideUp(500);
-                            if (shouldDisable) {
-                                fieldElement.attr("disabled", "disabled");
-                            }
-                        }
-                    }
-                    parent.change(function(){
-                        let conditionBool = false;
-                        if (parent.attr('name').includes("[]")) {
-                            conditionBool = ($(this).val().indexOf(conditionValue) > -1);
+                    if (parentField.length) {
+                        if (parentField.prop('name').includes("[]")) {
+                            conditionBool = (parentValue.indexOf(conditionValue) > -1);
                         } else {
-                            conditionBool = ($(this).val() == conditionValue);
+                            conditionBool = (parentValue == conditionValue);
                         }
 
                         if (conditionBool) {
@@ -144,6 +122,7 @@
                                     fieldElement.removeAttr("disabled");
                                 }
                             }
+
                         } else {
                             if (fieldGroup.is(':visible')) {
                                 fieldGroup.slideUp(500);
@@ -152,8 +131,36 @@
                                 }
                             }
                         }
-                    });
+                        parentField.change(function(){
+                            var conditionBool = false;
+                            if (parentField.prop('name').includes("[]")) {
+                                conditionBool = (parentField.val().indexOf(conditionValue) > -1);
+                            } else {
+                                conditionBool = (parentField.val() == conditionValue);
+                            }
+
+                            if (conditionBool) {
+                                if (fieldGroup.is(':hidden')) {
+                                    fieldGroup.slideDown(500);
+                                    if (fieldElement.prop('disabled')) {
+                                        fieldElement.removeAttr("disabled");
+                                    }
+                                }
+                            } else {
+                                if (fieldGroup.is(':visible')) {
+                                    fieldGroup.slideUp(500);
+                                    if (shouldDisable) {
+                                        fieldElement.attr("disabled", "disabled");
+                                    }
+                                }
+                            }
+                        });
+                    }
+
                 });
+            @endif
+
+
         }
 
         jQuery('document').ready(function($){
