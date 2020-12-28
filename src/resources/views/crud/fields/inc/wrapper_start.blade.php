@@ -13,7 +13,7 @@
     // forget whatever is in the FormRequest, do what the developer wants
     $required = (isset($field['showAsterisk'])) ? ($field['showAsterisk'] ? ' required' : '') : $required;
 
-    $field['wrapper']['id'] = $field['wrapper']['id'] ?? $field['name'];
+    $field['wrapper']['id'] = $field['wrapper']['id'] ?? ($field['type'] === 'checklist_dependency') ? $field['field_unique_name'] : $field['name'];
     $field['wrapper']['class'] = $field['wrapper']['class'] ?? "form-group col-sm-12";
     $field['wrapper']['class'] = $field['wrapper']['class'].$required;
     $field['wrapper']['element'] = $field['wrapper']['element'] ?? 'div';

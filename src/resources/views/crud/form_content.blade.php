@@ -57,63 +57,89 @@
             // get all fields has visibility
 
                 @php
-                    $visibiltiesFields = [];
+                    $visibilitiesFields = [];
                     foreach ($fields as $field => $options) {
                         if (array_key_exists('fields', $options)) {
                              foreach ($options['fields'] as $repField => $repOptions) {
                                  if (array_key_exists('visibility', $repOptions)) {
                                      $repOptions['repeatable'] = true;
-                                     $visibiltiesFields[] = $repOptions;
+                                     $options['checklist_dependency'] = false;
+                                     $visibilitiesFields[] = $repOptions;
                                  }
                              }
-
-                        }
-                        if (array_key_exists('visibility', $options)) {
+                        } else if (array_key_exists('subfields', $options)) {
+                            foreach ($options['subfields'] as $subField => $subOptions) {
+                                 if (array_key_exists('visibility', $subOptions)) {
+                                     $subOptions['checklist_dependency'] = true;
+                                     $visibilitiesFields[] = $subOptions;
+                                 }
+                             }
+                        } else if (array_key_exists('visibility', $options)) {
+                            $options['checklist_dependency'] = false;
                             $options['repeatable'] = false;
-                            $visibiltiesFields[] = $options;
+                            $visibilitiesFields[] = $options;
                         }
                     }
                 @endphp
 
-                @if(count($visibiltiesFields))
-            const JSVisibilitiesFields = {!! json_encode($visibiltiesFields) !!}
-                JSVisibilitiesFields.forEach(function (item) {
-                    var isInsideRepeatable = item['repeatable'];
-                    var fieldName = item['name'];
-                    var shouldDisable = item['visibility']['add_disabled'];
-                    var conditionValue = item['visibility']['value'];
-                    var parentName = item['visibility']['field_name'];
+                @if(count($visibilitiesFields))
+            const JSVisibilitiesFields = {!! json_encode($visibilitiesFields) !!}
+                console.log("FIELDS: "+JSON.stringify(JSVisibilitiesFields))
+            JSVisibilitiesFields.forEach(function (item) {
+                var isInsideChecklistDependency = item['checklist_dependency'];
+                var isInsideRepeatable = item['repeatable'];
+                var fieldName = item['name'];
+                var shouldDisable = item['visibility']['add_disabled'];
+                var conditionValue = item['visibility']['value'];
+                var parentName = item['visibility']['field_name'];
 
-                    var fieldGroup = $('#' + fieldName + '');
-                    if (!fieldGroup.length) {
-                        fieldGroup = ('#"' + fieldName + '\\[\\]"');
-                    }
-                    var fieldElement = $('[name='+fieldName+']');
-                    if (!fieldElement.length) {
-                        fieldElement = $('[name="'+fieldName+'\\[\\]"]');
-                    }
+                var fieldGroup = $('#' + fieldName + '');
+                if (!fieldGroup.length) {
+                    fieldGroup = ('#"' + fieldName + '\\[\\]"');
+                }
+                var fieldElement = $('[name='+fieldName+']');
+                if (!fieldElement.length) {
+                    fieldElement = $('[name="'+fieldName+'\\[\\]"]');
+                }
 
-                    var parentField = $('[name="'+parentName+'"]');
+                var parentField = $('[name="'+parentName+'"]');
+                if (!parentField.length) {
+                    parentField = $('[name="'+parentName+'\\[\\]"]');
+                }
+                if (isInsideRepeatable == true) {
+                    parentField = $('[data-repeatable-input-name=' + parentName + ']');
                     if (!parentField.length) {
-                        parentField = $('[name="'+parentName+'\\[\\]"]');
+                        parentField = $('[data-repeatable-input-name="'+parentName+'\\[\\]"]');
                     }
-                    if (isInsideRepeatable == true) {
-                        parentField = $('[data-repeatable-input-name=' + parentName + ']');
-                        if (!parentField.length) {
-                            parentField = $('[data-repeatable-input-name="'+parentName+'\\[\\]"]');
+                }
+
+                var parentValue = parentField.val();
+
+                console.log("VALUES: "+parentValue);
+                var conditionBool = false;
+
+                if (parentField.length) {
+                    conditionBool = (parentValue.indexOf(conditionValue) > -1);
+
+                    if (conditionBool) {
+                        if (fieldGroup.is(':hidden')) {
+                            fieldGroup.slideDown(500);
+                            if (fieldElement.prop('disabled')) {
+                                fieldElement.removeAttr("disabled");
+                            }
+                        }
+
+                    } else {
+                        if (fieldGroup.is(':visible')) {
+                            fieldGroup.slideUp(500);
+                            if (shouldDisable) {
+                                fieldElement.attr("disabled", "disabled");
+                            }
                         }
                     }
-
-                    var parentValue = parentField.val();
-
-                    var conditionBool = false;
-
-                    if (parentField.length) {
-                        if (parentField.prop('name').includes("[]")) {
-                            conditionBool = (parentValue.indexOf(conditionValue) > -1);
-                        } else {
-                            conditionBool = (parentValue == conditionValue);
-                        }
+                    parentField.change(function(){
+                        var conditionBool = false;
+                        conditionBool = (parentField.val().indexOf(conditionValue) > -1);
 
                         if (conditionBool) {
                             if (fieldGroup.is(':hidden')) {
@@ -122,7 +148,6 @@
                                     fieldElement.removeAttr("disabled");
                                 }
                             }
-
                         } else {
                             if (fieldGroup.is(':visible')) {
                                 fieldGroup.slideUp(500);
@@ -131,33 +156,10 @@
                                 }
                             }
                         }
-                        parentField.change(function(){
-                            var conditionBool = false;
-                            if (parentField.prop('name').includes("[]")) {
-                                conditionBool = (parentField.val().indexOf(conditionValue) > -1);
-                            } else {
-                                conditionBool = (parentField.val() == conditionValue);
-                            }
+                    });
+                }
 
-                            if (conditionBool) {
-                                if (fieldGroup.is(':hidden')) {
-                                    fieldGroup.slideDown(500);
-                                    if (fieldElement.prop('disabled')) {
-                                        fieldElement.removeAttr("disabled");
-                                    }
-                                }
-                            } else {
-                                if (fieldGroup.is(':visible')) {
-                                    fieldGroup.slideUp(500);
-                                    if (shouldDisable) {
-                                        fieldElement.attr("disabled", "disabled");
-                                    }
-                                }
-                            }
-                        });
-                    }
-
-                });
+            });
             @endif
 
 
