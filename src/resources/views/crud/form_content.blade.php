@@ -84,62 +84,40 @@
 
                 @if(count($visibilitiesFields))
             const JSVisibilitiesFields = {!! json_encode($visibilitiesFields) !!}
-                console.log("FIELDS: "+JSON.stringify(JSVisibilitiesFields))
-            JSVisibilitiesFields.forEach(function (item) {
-                var isInsideChecklistDependency = item['checklist_dependency'];
-                var isInsideRepeatable = item['repeatable'];
-                var fieldName = item['name'];
-                var shouldDisable = item['visibility']['add_disabled'];
-                var conditionValue = item['visibility']['value'];
-                var parentName = item['visibility']['field_name'];
+                JSVisibilitiesFields.forEach(function (item) {
+                    var isInsideChecklistDependency = item['checklist_dependency'];
+                    var isInsideRepeatable = item['repeatable'];
+                    var fieldName = item['name'];
+                    var shouldDisable = item['visibility']['add_disabled'];
+                    var conditionValue = item['visibility']['value'];
+                    var parentName = item['visibility']['field_name'];
 
-                var fieldGroup = $('#' + fieldName + '');
-                if (!fieldGroup.length) {
-                    fieldGroup = ('#"' + fieldName + '\\[\\]"');
-                }
-                var fieldElement = $('[name='+fieldName+']');
-                if (!fieldElement.length) {
-                    fieldElement = $('[name="'+fieldName+'\\[\\]"]');
-                }
+                    var fieldGroup = $('#' + fieldName + '');
+                    if (!fieldGroup.length) {
+                        fieldGroup = ('#"' + fieldName + '\\[\\]"');
+                    }
+                    var fieldElement = $('[name='+fieldName+']');
+                    if (!fieldElement.length) {
+                        fieldElement = $('[name="'+fieldName+'\\[\\]"]');
+                    }
 
-                var parentField = $('[name="'+parentName+'"]');
-                if (!parentField.length) {
-                    parentField = $('[name="'+parentName+'\\[\\]"]');
-                }
-                if (isInsideRepeatable == true) {
-                    parentField = $('[data-repeatable-input-name=' + parentName + ']');
+                    var parentField = $('[name="'+parentName+'"]');
                     if (!parentField.length) {
-                        parentField = $('[data-repeatable-input-name="'+parentName+'\\[\\]"]');
+                        parentField = $('[name="'+parentName+'\\[\\]"]');
                     }
-                }
-
-                var parentValue = parentField.val();
-
-                console.log("VALUES: "+parentValue);
-                var conditionBool = false;
-
-                if (parentField.length) {
-                    conditionBool = (parentValue.indexOf(conditionValue) > -1);
-
-                    if (conditionBool) {
-                        if (fieldGroup.is(':hidden')) {
-                            fieldGroup.slideDown(500);
-                            if (fieldElement.prop('disabled')) {
-                                fieldElement.removeAttr("disabled");
-                            }
-                        }
-
-                    } else {
-                        if (fieldGroup.is(':visible')) {
-                            fieldGroup.slideUp(500);
-                            if (shouldDisable) {
-                                fieldElement.attr("disabled", "disabled");
-                            }
+                    if (isInsideRepeatable == true) {
+                        parentField = $('[data-repeatable-input-name=' + parentName + ']');
+                        if (!parentField.length) {
+                            parentField = $('[data-repeatable-input-name="'+parentName+'\\[\\]"]');
                         }
                     }
-                    parentField.change(function(){
-                        var conditionBool = false;
-                        conditionBool = (parentField.val().indexOf(conditionValue) > -1);
+
+                    var parentValue = parentField.val();
+
+                    var conditionBool = false;
+
+                    if (parentField.length) {
+                        conditionBool = (parentValue.indexOf(conditionValue) > -1);
 
                         if (conditionBool) {
                             if (fieldGroup.is(':hidden')) {
@@ -148,6 +126,7 @@
                                     fieldElement.removeAttr("disabled");
                                 }
                             }
+
                         } else {
                             if (fieldGroup.is(':visible')) {
                                 fieldGroup.slideUp(500);
@@ -156,10 +135,29 @@
                                 }
                             }
                         }
-                    });
-                }
+                        parentField.change(function(){
+                            var conditionBool = false;
+                            conditionBool = (parentField.val().indexOf(conditionValue) > -1);
 
-            });
+                            if (conditionBool) {
+                                if (fieldGroup.is(':hidden')) {
+                                    fieldGroup.slideDown(500);
+                                    if (fieldElement.prop('disabled')) {
+                                        fieldElement.removeAttr("disabled");
+                                    }
+                                }
+                            } else {
+                                if (fieldGroup.is(':visible')) {
+                                    fieldGroup.slideUp(500);
+                                    if (shouldDisable) {
+                                        fieldElement.attr("disabled", "disabled");
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                });
             @endif
 
 
